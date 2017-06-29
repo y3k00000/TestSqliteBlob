@@ -12,11 +12,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 public class TestSQLiteOpenHelper extends SQLiteOpenHelper {
     public TestSQLiteOpenHelper(Context context) {
-        super(context, "TestBlobDatabase", null, 2);
+        super(context, "TestBlobDatabase", null, 3);
     }
 
     private static TestObject parseTestObject(byte[] blob) throws IOException, ClassNotFoundException {
@@ -24,28 +25,37 @@ public class TestSQLiteOpenHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onCreate(SQLiteDatabase sqLiteDatabase) {
+    public final void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL("create table if not exists test(obj blob);");
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
+    public final void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
         sqLiteDatabase.execSQL("drop table if exists test;");
         sqLiteDatabase.execSQL("create table if not exists test(obj blob);");
     }
 
-    public void insertTestObject(TestObject testObject) throws IOException, SQLException {
+    public final void insertTestObject(TestObject testObject) throws IOException, SQLException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         new ObjectOutputStream(byteArrayOutputStream).writeObject(testObject);
         this.getWritableDatabase().execSQL("insert into test (obj) values(?);", new Object[]{byteArrayOutputStream.toByteArray()});
     }
 
-    public TestObjectIterator getTestObjects() {
+    public final ArrayList<TestObject> dumpTestObjects() {
+        ArrayList<TestObject> result = new ArrayList<>();
+        TestObjectIterator testObjectIterator = this.queryTestObjects();
+        while (testObjectIterator.hasNext()) {
+            result.add(testObjectIterator.next());
+        }
+        return result;
+    }
+
+    public final TestObjectIterator queryTestObjects() {
         final Cursor cursor = this.getReadableDatabase().query("test", new String[]{"obj"}, null, null, null, null, null);
         return new TestObjectIterator(cursor);
     }
 
-    public class TestObjectIterator implements Iterator<TestObject> {
+    public final class TestObjectIterator implements Iterator<TestObject> {
         private final Cursor dbCursor;
 
         private TestObjectIterator(Cursor dbCursor) {

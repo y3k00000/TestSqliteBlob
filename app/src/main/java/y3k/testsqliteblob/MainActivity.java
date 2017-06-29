@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity {
@@ -21,9 +22,11 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-        Iterator<TestObject> readIterator = dbHelper.getTestObjects();
+        Iterator<TestObject> readIterator = dbHelper.queryTestObjects();
         while (readIterator.hasNext()) {
             Log.d("TestObject", readIterator.next().toString());
         }
+        ArrayList<TestObject> readArrayList = dbHelper.dumpTestObjects();
+        Log.d("TestObject", readArrayList.toString());
     }
 }

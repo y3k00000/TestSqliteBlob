@@ -15,6 +15,6 @@ public class TestObject implements Serializable {
 
     @Override
     public String toString() {
-        return "["+this.id+","+this.name+","+new String(this.data)+"]";
+        return "\"" + this.id + "," + this.name + "," + new String(this.data) + "\"";
     }
 }
